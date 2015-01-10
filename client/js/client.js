@@ -48,6 +48,14 @@ document.addEventListener('keydown', function(event) {
     else if(event.keyCode == 39) {
         var data = {'command':'rotright',data:{'keycode':"rotright"}};
 		sock.send(JSON.stringify(data));
+	}	
+    else if(event.keyCode == 80) {
+        var data = {'command':'takeoff',data:{'keycode':"takeoff"}};
+		sock.send(JSON.stringify(data));
+    }
+    else if(event.keyCode == 76) {
+        var data = {'command':'land',data:{'keycode':"land"}};
+		sock.send(JSON.stringify(data));
 	}		
 }); 
 document.addEventListener('keyup', function(event) {

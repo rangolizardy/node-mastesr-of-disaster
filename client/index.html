@@ -2,15 +2,26 @@
 <head>
 <script src="js/sockjs.min.js"></script>
 <script src="js/nodecopter-client.js"></script>
-
+<style>
+	canvas{
+		width:100%;
+		height:100%;
+	}
+	body{
+		padding:0;
+		margin:0;
+	}
+	
+</style>
 </head>
 
-<body>
-<script src="js/client.js"></script>
+<body id="body">
+<div id="droneStream"> </div>
 <script>
   // video canvas will auto-size to the DOM-node, or default to 640*360 if no size is set.
   new NodecopterStream(document.getElementById("droneStream"));
 </script>
-</body>
+<script src="js/client.js"></script>
 
+</body>
 </html>

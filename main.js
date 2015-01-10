@@ -3,19 +3,18 @@ var client = arDrone.createClient();
 var http = require('http');
 var sockjs = require('sockjs');
 var movement_factor = 0.7;
-var echo = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js' });
+var echo = sockjs.createServer();
 client.config('control:altitude_max', 3000);
-client.disableEmergency();
+
 var currently_down = [];
 echo.on('connection', function(conn) {
-	client.takeoff();
+	console.log('conne');
     conn.on('data', function(message) {
 		var msg = JSON.parse(message);
 		handle_input(msg.command, msg.data);
 	
     });
     conn.on('close', function() {
-		client.land();		
 	});
 });
 function handle_input(command,data){
@@ -55,6 +54,19 @@ function switch_input(command,data){
 				break;
 			case "stop":
 				stop(data);
+				
+				client.disableEmergency();
+				break;
+				
+			case "land":
+				client.land();		
+
+				break;
+			case "takeoff":
+				client.disableEmergency();
+
+				client.takeoff();
+
 				break;
 		}	
 	
@@ -76,6 +88,19 @@ function handle_up(){
 var server = http.createServer(function(req,res){});
 echo.installHandlers(server, {prefix:'/parrot'});
 server.listen(9999, '0.0.0.0');
+var express = require('express')
+  , app = express()
+  , path = require('path')
+  , server = require("http").createServer(app)
+  ;
+app.use(express.static(path.join(__dirname, 'client')));
 
-var image_server = http.createServer(function(req,res){});
-image_server.listen(9998, '0.0.0.0');
+/*
+ * Important:
+ *
+ * pass in the server object to listen, not the express app
+ * call 'listen' on the server, not the express app
+ */
+// should be require("dronestream").listen(server);
+require("dronestream").listen(server);
+server.listen(3000);
