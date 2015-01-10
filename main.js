@@ -6,75 +6,76 @@ var movement_factor = 0.7;
 var echo = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js' });
 client.config('control:altitude_max', 3000);
 client.disableEmergency();
-
+var currently_down = [];
 echo.on('connection', function(conn) {
 	client.takeoff();
     conn.on('data', function(message) {
-        var msg = JSON.parse(message);
-		switch(msg.command){
-			case "getVideo":
-					client.getPngStream()
-				break;
-			case "leftdown":
+		var msg = JSON.parse(message);
+		handle_input(msg.command, msg.data);
+	
+    });
+    conn.on('close', function() {
+		client.land();		
+	});
+});
+function handle_input(command,data){
+
+	var index = currently_down.indexOf(data.keycode);
+	if (index > -1) {
+		currently_down.splice(index, 1);
+	}
+	currently_down.push(data.keycode);
+	switch_input(command,data);
+}
+function switch_input(command,data){
+	switch(command){
+			case "left":
 				client.left(movement_factor);
 				break;
-			case "rightdown":
+			case "right":
 				client.right(movement_factor);
 				break;
-			case "forwarddown":
+			case "forward":
 				client.front(movement_factor);
 				break;
-			case "backdown":
+			case "back":
 				client.back(movement_factor);
 				break;
-			case "updown":
+			case "up":
 				client.up(movement_factor);
 				break;
-			case "downdown":
+			case "down":
 				client.down(movement_factor);
 				break;
-			case "left":
-				
+			case "rotleft":
 				client.counterClockwise(movement_factor);
 				break;
-			case "right":
+			case "rotright":
 				client.clockwise(movement_factor); 
 				break;
 			case "stop":
+				stop(data);
+				break;
+		}	
+	
+}
+function stop(data){
+				var index = currently_down.indexOf(data.keycode);
+				if (index > -1) {
+					currently_down.splice(index, 1);
+				}
 				client.stop();
-				break;
-			case"test":
-				client
-				  .after(5000, function() {
-					this.clockwise(0.5);
-				  })
-				  .after(3000, function() {
-					this.animate('flipLeft', 15);
-				  })
-				  .after(1000, function() {
-					this.stop();
-					
-				  });
-				break;
-			
-		}
-    });
-    conn.on('close', function() {
-		client.land();
-		
+				handle_up();
+}
+function handle_up(){
+	currently_down.forEach(function(entry) {
+		switch_input(entry);
 	});
-});
-
-var server = http.createServer(function(req,res){
-    if (req	== "/png") {
-		var png = client.getPngStream();
-		res.writeHead(200, {'Content-Type': 'image/png' });
-		res.end(png,'binary');		
-	};
-
-});
+	
+}
+var server = http.createServer(function(req,res){});
 echo.installHandlers(server, {prefix:'/parrot'});
 server.listen(9999, '0.0.0.0');
 
-
-require('ar-drone-png-stream')(client, { port: 8000 });
+var image_server = http.createServer(function(req,res){});
+image_server.listen(9998, '0.0.0.0');
