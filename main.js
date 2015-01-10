@@ -11,14 +11,17 @@ echo.on('connection', function(conn) {
 	console.log('conne');
     conn.on('data', function(message) {
 		var msg = JSON.parse(message);
-		handle_input(msg.command, msg.data);
+		if(msg.command == "function"){
+			handle_func(msg.data.keycode);	
+		}else{
+			handle_input(msg.command, msg.data);
+		}
 	
     });
     conn.on('close', function() {
 	});
 });
 function handle_input(command,data){
-
 	var index = currently_down.indexOf(data.keycode);
 	if (index > -1) {
 		currently_down.splice(index, 1);
@@ -26,8 +29,25 @@ function handle_input(command,data){
 	currently_down.push(data.keycode);
 	switch_input(command,data);
 }
+function handle_func(func){
+	switch(func){
+		case "flip":
+			console.log('flipped here1');
+			client.animate('flipAhead', 500);
+			break;
+		case "turnaround":
+			console.log('ma');
+			client.animate('turnaround', 1000);
+			break;
+		
+	}
+}
 function switch_input(command,data){
+
 	switch(command){
+			case "stop":
+				stop(data);
+				break
 			case "left":
 				client.left(movement_factor);
 				break;
@@ -52,22 +72,25 @@ function switch_input(command,data){
 			case "rotright":
 				client.clockwise(movement_factor); 
 				break;
-			case "stop":
-				stop(data);
-				
-				client.disableEmergency();
-				break;
-				
 			case "land":
-				client.land();		
-
+				client.land();	
 				break;
 			case "takeoff":
 				client.disableEmergency();
-
 				client.takeoff();
+				break;
+			case "flip":		   
+		 		
+				break;
+			case "turnaround":
+				client.animate('turnaround',500);
+					var index = currently_down.indexOf('turnaround');
+					if (index > -1) {
+						currently_down.splice(index, 1);
+					}
 
 				break;
+
 		}	
 	
 }

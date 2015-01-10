@@ -56,7 +56,17 @@ document.addEventListener('keydown', function(event) {
     else if(event.keyCode == 76) {
         var data = {'command':'land',data:{'keycode':"land"}};
 		sock.send(JSON.stringify(data));
-	}		
+		
+	}
+	else if(event.keyCode == 49) {
+        var data = {'command':'function',data:{'keycode':"flip"}};
+		sock.send(JSON.stringify(data));	
+	}
+	else if(event.keyCode == 77) {
+        var data = {'command':'function',data:{'keycode':"turnaround"}};
+		sock.send(JSON.stringify(data));
+	}	
+	
 }); 
 document.addEventListener('keyup', function(event) {
 	
